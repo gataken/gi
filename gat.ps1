@@ -111,7 +111,7 @@ if (-Not $linkFound) {
 
 $wishHistoryUrl = $link
 
-Write-Host $wishHistoryUrl -ForegroundColor lightblue
+Write-Host $wishHistoryUrl -ForegroundColor Cyan
 Set-Clipboard -Value $wishHistoryUrl
 Write-Host ""
 Write-Host "チェック完了。クリップボードにURLをコピーしました。paimon.moe に貼り付けてインポートしてください。" -ForegroundColor Green
