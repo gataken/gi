@@ -2,7 +2,6 @@ Add-Type -AssemblyName System.Web
 
 # ver
 Write-Host "スクリプト Ver.3.8 JP(2023/07/09)" -ForegroundColor Green
-Write-Host "(リンクチェックに時間がかかる場合は履歴が古い、またはゲーム内で開かれてない可能性があります)"
 
 $logLocation = "%userprofile%\AppData\LocalLow\miHoYo\Genshin Impact\output_log.txt";
 $logLocationChina = "%userprofile%\AppData\LocalLow\miHoYo\$([char]0x539f)$([char]0x795e)\output_log.txt";
@@ -91,7 +90,7 @@ $linkFound = $false
 for ($i = $found.Length - 1; $i -ge 0; $i -= 1) {
   $t = $found[$i] -match "(https.+?game_biz=)"
   $link = $matches[0]
-  Write-Host "`rリンクをチェック中... $i" -NoNewline
+  Write-Host "`rリンクをチェック中... $i" -NoNewline -ForegroundColor Red
   $testResult = testUrl $link
   if ($testResult -eq $true) {
     $linkFound = $true
@@ -116,5 +115,5 @@ Write-Host $wishHistoryUrl
 Set-Clipboard -Value $wishHistoryUrl
 Write-Host ""
 Write-Host "チェック完了。クリップボードにURLをコピーしました。paimon.moe に貼り付けてインポートしてください。" -ForegroundColor Green
-Read-Host "Enterキーを押すと paimon.moe に移動します。"
+Read-Host "Enterキーを押すと paimon.moe に移動します。" -ForegroundColor Green
 Start-Process "https://paimon.moe/wish/import"
