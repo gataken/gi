@@ -9,8 +9,8 @@ $logLocationChina = "%userprofile%\AppData\LocalLow\miHoYo\$([char]0x539f)$([cha
 
 # 翻訳
 $log = "祈願履歴が存在しません。最初にゲーム内でガチャの履歴を開いておいてください。"
-$url = "祈願履歴がおそらく開かれていません。Enterキーを押すことで終了します。"
-$admin = "管理者権限でこのツールを実行していない可能性があります。エンターキーで続行、その他のボタンで終了します。"
+$url = "祈願履歴が開かれていません。Enterキーを押すと終了します。"
+$admin = "管理者権限でこのツールを実行していない可能性があります。Enterキーで続行、その他のボタンで終了します。"
 $clipboard = "クリップボードにURLをコピーしました、paimon.moe に貼り付けてインポートしてください。"
 $end = "Enterキーで終了します。"
 
@@ -115,6 +115,6 @@ $wishHistoryUrl = $link
 Write-Host $wishHistoryUrl
 Set-Clipboard -Value $wishHistoryUrl
 Write-Host ""
-Write-Host "チェック完了。クリップボードにURLをコピーしました、paimon.moe に貼り付けてインポートしてください。" -ForegroundColor Green
-Read-Host "Enterキーを押すことで paimon.moe が開きます。"
+Write-Host "チェック完了。クリップボードにURLをコピーしました。paimon.moe に貼り付けてインポートしてください。" -ForegroundColor Green
+Read-Host "Enterキーを押すと paimon.moe に移動します。"
 Start-Process "https://paimon.moe/wish/import"
