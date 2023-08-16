@@ -28,25 +28,23 @@ if ([System.IO.File]::Exists($tmps)) {
 
 $path = [System.Environment]::ExpandEnvironmentVariables($logLocation);
 if (-Not [System.IO.File]::Exists($path)) {
-  Write-Host $log -ForegroundColor Red
-  Read-Host $end
+    Write-Host "Cannot find the log file! Make sure to open the wish history first!" -ForegroundColor Red
 
-  if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {  
-    Write-Host $admin
-    $keyInput = [Console]::ReadKey($true).Key
-    if ($keyInput -ne "13") {
-      return
+    if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {  
+        Write-Host "Do you want to try to run the script as Administrator? Press [ENTER] to continue, or any key to cancel."
+        $keyInput = [Console]::ReadKey($true).Key
+        if ($keyInput -ne "13") {
+            return
+        }
+
+        $myinvocation.mycommand.definition > $tmps
+
+        Start-Process powershell -Verb runAs -ArgumentList "-noexit", $tmps, $reg
+        break
     }
 
-    $myinvocation.mycommand.definition > $tmps
-
-    Start-Process powershell -Verb runAs -ArgumentList "-noexit", $tmps, $reg
-    break
-  }
-
-  return
+    return
 }
-
 $logs = Get-Content -Path $path
 $m = $logs -match "(?m).:/.+(GenshinImpact_Data|YuanShen_Data)"
 $m[0] -match "(.:/.+(GenshinImpact_Data|YuanShen_Data))" >$null
