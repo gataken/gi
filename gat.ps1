@@ -1,7 +1,7 @@
 Add-Type -AssemblyName System.Web
 
 # ver
-Write-Host "スクリプト Ver.3.8 JP(2023/07/09)" -ForegroundColor Green
+Write-Host "スクリプト Ver.4.0 JP(2023/08/16)" -ForegroundColor Green
 
 $logLocation = "%userprofile%\AppData\LocalLow\miHoYo\Genshin Impact\output_log.txt";
 $logLocationChina = "%userprofile%\AppData\LocalLow\miHoYo\$([char]0x539f)$([char]0x795e)\output_log.txt";
