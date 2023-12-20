@@ -1,7 +1,7 @@
 Add-Type -AssemblyName System.Web
 
 # ver
-Write-Host "スクリプト Ver.4.2 JP(2023/11/08)" -ForegroundColor Green
+Write-Host "スクリプト Ver.4.3 JP(2023/12/20)" -ForegroundColor Green
 
 $logLocation = "%userprofile%\AppData\LocalLow\miHoYo\Genshin Impact\output_log.txt";
 $logLocationChina = "%userprofile%\AppData\LocalLow\miHoYo\$([char]0x539f)$([char]0x795e)\output_log.txt";
@@ -56,7 +56,7 @@ if ($matches.Length -eq 0) {
 }
 
 $gamedir = $matches[1]
-$cachefile = "$gamedir/webCaches/2.18.0.0/Cache/Cache_Data/data_2"
+$cachefile = "$gamedir/webCaches/2.19.0.0/Cache/Cache_Data/data_2"
 $tmpfile = "$env:TEMP/ch_data_2"
 
 Copy-Item $cachefile -Destination $tmpfile
