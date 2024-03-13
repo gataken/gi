@@ -45,17 +45,18 @@ if (-Not [System.IO.File]::Exists($path)) {
 
     return
 }
+
 $logs = Get-Content -Path $path
 $m = $logs -match "(?m).:/.+(GenshinImpact_Data|YuanShen_Data)"
 $m[0] -match "(.:/.+(GenshinImpact_Data|YuanShen_Data))" >$null
 
 if ($matches.Length -eq 0) {
-  Write-Host $url -ForegroundColor Red
-  Read-Host $end
-  return
+    Write-Host "Cannot find the wish history url! Make sure to open the wish history first!" -ForegroundColor Red
+    return
 }
 
 $gamedir = $matches[1]
+# Thanks to @jogerj for getting the latest webchache dir
 $webcachePath = Resolve-Path "$gamedir/webCaches"
 $cacheVerPath = Get-Item (Get-ChildItem -Path $webcachePath | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
 $cachefile = Resolve-Path "$cacheVerPath/Cache/Cache_Data/data_2"
@@ -82,9 +83,9 @@ function testUrl($url) {
   return $testResult
 }
 
-$content = Get-Content -Encoding ascii -Raw $tmpfile
+$content = Get-Content -Encoding UTF8 -Raw $tmpfile
 $splitted = $content -split "1/0/"
-$found = $splitted -match "e20190909gacha-v2"
+$found = $splitted -match "webview_gacha"
 $link = $false
 $linkFound = $false
 for ($i = $found.Length - 1; $i -ge 0; $i -= 1) {
