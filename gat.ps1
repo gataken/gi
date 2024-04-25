@@ -1,7 +1,7 @@
 Add-Type -AssemblyName System.Web
 
 # ver
-Write-Host "スクリプト Ver.4.5 JP(2024/03/13)" -ForegroundColor Green
+Write-Host "GATスクリプト Ver.4.6 JP(2024/04/26)" -ForegroundColor Green
 
 $logLocation = "%userprofile%\AppData\LocalLow\miHoYo\Genshin Impact\output_log.txt";
 $logLocationChina = "%userprofile%\AppData\LocalLow\miHoYo\$([char]0x539f)$([char]0x795e)\output_log.txt";
@@ -56,7 +56,6 @@ if ($matches.Length -eq 0) {
 }
 
 $gamedir = $matches[1]
-# Thanks to @jogerj for getting the latest webchache dir
 $webcachePath = Resolve-Path "$gamedir/webCaches"
 $cacheVerPath = Get-Item (Get-ChildItem -Path $webcachePath | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
 $cachefile = Resolve-Path "$cacheVerPath/Cache/Cache_Data/data_2"
