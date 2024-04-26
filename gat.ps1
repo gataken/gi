@@ -21,9 +21,14 @@ function processWishUrl($wishUrl) {
         return $False
     }
     # OK
-    Write-Host $wishURL
     Set-Clipboard -Value $wishURL
     Write-Host "Link copied to clipboard, paste it back to paimon.moe" -ForegroundColor Green
+    Write-Host $wishURL -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "チェック完了。クリップボードにURLをコピーしました。paimon.moe に貼り付けてインポートしてください。" -ForegroundColor Green
+    Read-Host "Enterキーを押すと paimon.moe に移動します。"
+    Start-Process "https://paimon.moe/wish/import"
+
     return $True
 }
 
@@ -101,11 +106,3 @@ if (Test-Path $cachePath) {
     pause
 }
 
-$wishHistoryUrl = $link
-
-Write-Host $wishHistoryUrl -ForegroundColor Cyan
-Set-Clipboard -Value $wishHistoryUrl
-Write-Host ""
-Write-Host "チェック完了。クリップボードにURLをコピーしました。paimon.moe に貼り付けてインポートしてください。" -ForegroundColor Green
-Read-Host "Enterキーを押すと paimon.moe に移動します。"
-Start-Process "https://paimon.moe/wish/import"
