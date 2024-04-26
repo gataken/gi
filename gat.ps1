@@ -22,7 +22,6 @@ function processWishUrl($wishUrl) {
     }
     # OK
     Set-Clipboard -Value $wishURL
-    Write-Host "Link copied to clipboard, paste it back to paimon.moe" -ForegroundColor Green
     Write-Host $wishURL -ForegroundColor Cyan
     Write-Host ""
     Write-Host "チェック完了。クリップボードにURLをコピーしました。paimon.moe に貼り付けてインポートしてください。" -ForegroundColor Green
