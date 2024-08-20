@@ -1,107 +1,111 @@
 Add-Type -AssemblyName System.Web
 
-# ver
 Write-Host "GATスクリプト" -ForegroundColor Green
 
+$logLocation = "%userprofile%\AppData\LocalLow\miHoYo\Genshin Impact\output_log.txt";
+$logLocationChina = "%userprofile%\AppData\LocalLow\miHoYo\$([char]0x539f)$([char]0x795e)\output_log.txt";
 
-function processWishUrl($wishUrl) {
-    # check validity
-    if ($wishUrl -match "https:\/\/webstatic") {
-        if ($wishUrl -match "hk4e_global") {
-            $checkUrl = $wishUrl -replace "https:\/\/webstatic.+html\?", "https://hk4e-api-os.mihoyo.com/event/gacha_info/api/getGachaLog?"
-        } else {
-            $checkUrl = $wishUrl -replace "https:\/\/webstatic.+html\?", "https://hk4e-api.mihoyo.com/event/gacha_info/api/getGachaLog?"
-        }
-        $urlResponseMessage = Invoke-RestMethod -URI $checkUrl | % {$_.message}
-    } else {
-        $urlResponseMessage = Invoke-RestMethod -URI $wishUrl | % {$_.message}
-    }
-    if ($urlResponseMessage -ne "OK") {
-        Write-Host "Link found but it is expired/invalid! Open Wish History again to fetch a new link" -ForegroundColor Yellow
-        return $False
-    }
-    # OK
-    Set-Clipboard -Value $wishURL
-    Write-Host $wishURL -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "チェック完了。クリップボードにURLをコピーしました。paimon.moe に貼り付けてインポートしてください。" -ForegroundColor Green
-    Read-Host "Enterキーを押すと paimon.moe に移動します。"
-    Start-Process "https://paimon.moe/wish/import"
-
-    return $True
+$reg = $args[0]
+$apiHost = "public-operation-hk4e-sg.hoyoverse.com" 
+if ($reg -eq "china") {
+  Write-Host "中国キャッシュロケーションの使用"
+  $logLocation = $logLocationChina
+  $apiHost = "public-operation-hk4e.mihoyo.com"
 }
 
-$logPathGlobal = [System.Environment]::ExpandEnvironmentVariables("%userprofile%/AppData/LocalLow/miHoYo/Genshin Impact/output_log.txt");
-$logPathChina = [System.Environment]::ExpandEnvironmentVariables("%userprofile%/AppData/LocalLow/miHoYo/$([char]0x539f)$([char]0x795e)/output_log.txt");
-$globalExists = Test-Path $logPathGlobal;
-$cnExists = Test-Path $logPathChina;
-
-if ($globalExists) {
-    if ($cnExists) {
-        # both exists, pick newest one
-        if ((Get-Item $logPathGlobal).LastWriteTime -ge (Get-Item $logPathChina).LastWriteTime) {
-            $logPath = $logPathGlobal;
-        } else {
-            $logPath = $logPathChina;
-        }
-    } else {
-        $logPath = $logPathGlobal;
-    } 
-} else {
-    if ($cnExists) {
-        $logPath = $logPathChina;
-    } else {
-        Write-Host "Cannot find Genshin Impact log file! Make sure to run Genshin Impact and open the wish history at least once!" -ForegroundColor Red
-        if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {  
-            Write-Host "Do you want to try to run the script as Administrator? Press [ENTER] to continue, or any key to cancel."
-            $keyInput = [Console]::ReadKey($true).Key
-            if ($keyInput -ne "13") {
-                return
-            }
-            $arguments = "& '" +$myinvocation.mycommand.definition + "'"
-            Start-Process powershell -Verb runAs -ArgumentList "-noexit $arguments $reg"
-            break
-        } 
-        return
-    }
+$tmps = $env:TEMP + '\pm.ps1';
+if ([System.IO.File]::Exists($tmps)) {
+  ri $tmps
 }
 
+$path = [System.Environment]::ExpandEnvironmentVariables($logLocation);
+if (-Not [System.IO.File]::Exists($path)) {
+    Write-Host "ログファイルが見つかりません！最初に祈願履歴を開いてください！" -ForegroundColor Red
 
-$logs = Get-Content -Path $logPath
-$regexPattern = "(?m).:/.+(GenshinImpact_Data|YuanShen_Data)"
-$logMatch = $logs -match $regexPattern
+    if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {  
+        Write-Host "スクリプトを管理者として実行しますか？続行するには[ENTER]を、キャンセルするにはどれかのキーを押してください。"
+        $keyInput = [Console]::ReadKey($true).Key
+        if ($keyInput -ne "13") {
+            return
+        }
 
-if (-Not $logMatch) {
-    Write-Host "Cannot find Genshin Impact path in log file! Make sure to run Genshin Impact and open the wish history at least once!" -ForegroundColor Red
-    pause
+        $myinvocation.mycommand.definition > $tmps
+
+        Start-Process powershell -Verb runAs -ArgumentList "-noexit", $tmps, $reg
+        break
+    }
+
     return
 }
 
-$gameDataPath = ($logMatch | Select -Last 1) -match $regexPattern
-$gameDataPath = Resolve-Path $Matches[0]
+$logs = Get-Content -Path $path
+$m = $logs -match "(?m).:/.+(GenshinImpact_Data|YuanShen_Data)"
+$m[0] -match "(.:/.+(GenshinImpact_Data|YuanShen_Data))" >$null
 
-
-$webcachePath = Resolve-Path "$gameDataPath/webCaches"
-$cacheVerPath = Get-Item (Get-ChildItem -Path $webcachePath | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
-$cachePath = Resolve-Path "$cacheVerPath/Cache/Cache_Data/data_2"
-
-if (Test-Path $cachePath) {
-    $tmpFile = "$env:TEMP/ch_data_2"
-    Copy-Item $cachePath -Destination $tmpFile
-    $content = Get-Content -Encoding UTF8 -Raw $tmpfile
-    $splitted = $content -split "1/0/" | Select -Last 1
-    $found = $splitted -match "https.+?game_biz=hk4e_(global|cn)"
-    Remove-Item $tmpFile
-    if ($found) {
-        $wishUrl = $Matches[0]
-        if (processWishUrl $wishUrl) {
-            return
-        }
-    }
-    Write-Host "No valid link found! Make sure Genshin Impact is installed and open Wish History page at least once." -ForegroundColor Red
-    pause
-} else {
-    Write-Host "Genshin Impact cache not found! Make sure Genshin Impact is installed and open Wish History page at least once." -ForegroundColor Red
-    pause
+if ($matches.Length -eq 0) {
+    Write-Host "祈願履歴のURLが見つかりません！最初に祈願履歴を開いてください！" -ForegroundColor Red
+    return
 }
 
+$gamedir = $matches[1]
+# Thanks to @jogerj for getting the latest webchache dir
+$webcachePath = Resolve-Path "$gamedir/webCaches"
+$cacheVerPath = Get-Item (Get-ChildItem -Path $webcachePath | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+$cachefile = Resolve-Path "$cacheVerPath/Cache/Cache_Data/data_2"
+$tmpfile = "$env:TEMP/ch_data_2"
+
+Copy-Item $cachefile -Destination $tmpfile
+
+function testUrl($url) {
+  $ProgressPreference = 'SilentlyContinue'
+  $uri = [System.UriBuilder]::New($url)
+  $uri.Path = "gacha_info/api/getGachaLog"
+  $uri.Host = $apiHost
+  $uri.Fragment = ""
+  $params = [System.Web.HttpUtility]::ParseQueryString($uri.Query)
+  $params.Set("lang", "en");
+  $params.Set("gacha_type", 301);
+  $params.Set("size", "5");
+  $params.Add("lang", "en-us");
+  $uri.Query = $params.ToString()
+  $apiUrl = $uri.Uri.AbsoluteUri
+
+  $response = Invoke-WebRequest -Uri $apiUrl -ContentType "application/json" -UseBasicParsing -TimeoutSec 10 | ConvertFrom-Json
+  $testResult = $response.retcode -eq 0
+  return $testResult
+}
+
+$content = Get-Content -Encoding UTF8 -Raw $tmpfile
+$splitted = $content -split "1/0/"
+$found = $splitted -match "webview_gacha"
+$link = $false
+$linkFound = $false
+for ($i = $found.Length - 1; $i -ge 0; $i -= 1) {
+  $t = $found[$i] -match "(https.+?game_biz=)"
+  $link = $matches[0]
+  Write-Host "`rChecking Link $i" -NoNewline
+  $testResult = testUrl $link
+  if ($testResult -eq $true) {
+    $linkFound = $true
+    break
+  }
+  Sleep 1
+}
+
+Remove-Item $tmpfile
+
+Write-Host ""
+
+if (-Not $linkFound) {
+  Write-Host "祈願履歴のURLが見つかりません！最初に祈願履歴を開いてください！" -ForegroundColor Red
+  return
+}
+
+$wishHistoryUrl = $link
+
+Write-Host $wishHistoryUrl -ForegroundColor Cyan
+Set-Clipboard -Value $wishHistoryUrl
+Write-Host ""
+Write-Host "チェック完了。クリップボードにURLをコピーしました。paimon.moe に貼り付けてインポートしてください。" -ForegroundColor Green
+Read-Host "Enterキーを押すと paimon.moe に移動します。"
+Start-Process "https://paimon.moe/wish/import"
