@@ -108,4 +108,5 @@ Set-Clipboard -Value $wishHistoryUrl
 Write-Host ""
 Write-Host "チェック完了。クリップボードにURLをコピーしました。paimon.moe に貼り付けてインポートしてください。" -ForegroundColor Green
 Read-Host "Enterキーを押すと paimon.moe に移動します。"
-Start-Process "https://paimon.moe/wish/import"
+#Start-Process "https://paimon.moe/wish/import"
+start-process "https://stardb.gg/ja/genshin/wish-import"
