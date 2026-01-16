@@ -109,5 +109,5 @@ Write-Host ""
 Write-Host "チェック完了。クリップボードにURLをコピーしました。対応サイトに貼り付けてインポートしてください。" -ForegroundColor Green
 Read-Host "Enterキーを押すと paimon.moe に移動します。"
 Start-Process "https://paimon.moe/wish/import"
-Read-Host "Enterキーを押すと stardb.gg に移動します。"
-start-process "https://stardb.gg/ja/genshin/wish-import"
+#Read-Host "Enterキーを押すと stardb.gg に移動します。"
+#start-process "https://stardb.gg/ja/genshin/wish-import"
